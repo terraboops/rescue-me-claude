@@ -1,0 +1,99 @@
+name: Build ISO
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Create a release with this tag name (leave empty to skip)'
+        required: false
+        type: string
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Sy --noconfirm archiso npm git
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build ISO
+        run: |
+          chmod +x build.sh
+          ./build.sh --output /tmp/iso-out
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rescue-me-claude-iso
+          path: /tmp/iso-out/*.iso
+          retention-days: 7
+
+      - name: Upload checksum artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rescue-me-claude-checksum
+          path: /tmp/iso-out/*.sha256
+          retention-days: 7
+
+  release:
+    needs: build-iso
+    if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.release != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download ISO artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: rescue-me-claude-iso
+          path: ./artifacts
+
+      - name: Download checksum artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: rescue-me-claude-checksum
+          path: ./artifacts
+
+      - name: Determine tag
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.release }}" ]; then
+            echo "tag=${{ github.event.inputs.release }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "Rescue Me Claude ${{ steps.tag.outputs.tag }}"
+          body: |
+            ## Rescue Me Claude ${{ steps.tag.outputs.tag }}
+
+            Bootable Linux rescue environment with Claude Code pre-installed.
+
+            ### Quick Start
+            1. Download the ISO file below
+            2. Burn to USB: `rescue-me-claude burn rescue-me-claude-*.iso`
+            3. Boot from USB
+            4. Run `claude` to start debugging
+
+            Or use the CLI tool for a one-step flash:
+            ```
+            rescue-me-claude flash --device /dev/sdX
+            ```
+          files: |
+            artifacts/*.iso
+            artifacts/*.sha256
+          draft: false
+          prerelease: false

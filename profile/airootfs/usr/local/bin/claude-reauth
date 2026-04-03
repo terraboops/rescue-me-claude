@@ -1,0 +1,21 @@
+#!/bin/bash
+# claude-reauth - Re-authenticate Claude Code
+set -euo pipefail
+
+echo "=== Claude Code Re-Authentication ==="
+echo ""
+
+# Check current status
+if claude auth status &>/dev/null 2>&1; then
+    echo "Currently authenticated."
+    read -rp "Log out and re-authenticate? [y/N] " answer
+    if [[ ! "$answer" =~ ^[Yy] ]]; then
+        echo "Keeping current authentication."
+        exit 0
+    fi
+    claude auth logout 2>/dev/null || true
+fi
+
+echo ""
+echo "Starting authentication..."
+claude auth login

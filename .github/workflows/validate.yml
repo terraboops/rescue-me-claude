@@ -1,0 +1,81 @@
+name: Validate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  rust:
+    name: Rust checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Check
+        run: cargo check
+
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+
+      - name: Test
+        run: cargo test
+
+  shellcheck:
+    name: Shell script checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Shellcheck
+        run: |
+          find . -name '*.sh' -not -path './.git/*' | xargs shellcheck -e SC1091
+
+  profile:
+    name: Profile structure validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate required files
+        run: |
+          errors=0
+          for f in \
+            profile/profiledef.sh \
+            profile/packages.x86_64 \
+            profile/pacman.conf \
+            profile/airootfs/etc/hostname \
+            profile/airootfs/etc/motd \
+            profile/airootfs/root/.bashrc \
+            profile/airootfs/usr/local/bin/rescue-claude \
+            profile/airootfs/usr/local/bin/claude-reauth \
+            profile/grub/grub.cfg \
+            profile/syslinux/syslinux.cfg \
+            profile/efiboot/loader/loader.conf \
+            build.sh; do
+            if [ ! -f "$f" ]; then
+              echo "MISSING: $f"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ $errors -gt 0 ]; then
+            echo "$errors required file(s) missing!"
+            exit 1
+          fi
+          echo "All required files present."
+
+      - name: Validate packages list
+        run: |
+          # Check that packages.x86_64 has no empty lines (ignoring comments)
+          if grep -E '^\s*$' profile/packages.x86_64 | grep -v '^#'; then
+            echo "WARNING: Empty lines in packages.x86_64 (non-fatal)"
+          fi
+          echo "Package list looks valid ($(grep -c -v '^#\|^$' profile/packages.x86_64) packages)"

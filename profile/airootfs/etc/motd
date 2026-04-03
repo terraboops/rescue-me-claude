@@ -1,0 +1,22 @@
+
+  ____                            __  __        ____ _                 _
+ |  _ \ ___  ___  ___ _   _  ___|  \/  | ___  / ___| | __ _ _   _  __| | ___
+ | |_) / _ \/ __|/ __| | | |/ _ \ |\/| |/ _ \| |   | |/ _` | | | |/ _` |/ _ \
+ |  _ <  __/\__ \ (__| |_| |  __/ |  | |  __/| |___| | (_| | |_| | (_| |  __/
+ |_| \_\___||___/\___|\__,_|\___|_|  |_|\___| \____|_|\__,_|\__,_|\__,_|\___|
+
+  Bootable Claude Code Environment for Linux Rescue & Debugging
+
+  Quick Start:
+    claude          Launch Claude Code (interactive AI assistant)
+    rescue-claude   Launch Claude with rescue context (mounts, diagnostics)
+    startx          Start i3 desktop environment (terminal + browser)
+    nmtui           Connect to WiFi interactively
+    claude-reauth   Re-authenticate Claude Code
+
+  Useful Commands:
+    lsblk           List block devices
+    mount /dev/X /mnt  Mount a partition for inspection
+    arch-chroot /mnt   Chroot into a mounted Arch installation
+    journalctl -D /mnt/var/log/journal  Read logs from mounted system
+

@@ -1,0 +1,71 @@
+#!/bin/bash
+# rescue-claude - Launch Claude Code with rescue context
+set -euo pipefail
+
+echo "=== Rescue Me Claude ==="
+echo ""
+
+# Check network
+if ! ping -c 1 -W 3 1.1.1.1 &>/dev/null; then
+    echo "WARNING: No network connectivity detected."
+    echo "  Connect via: nmtui (WiFi) or plug in an ethernet cable"
+    echo "  NetworkManager status: $(systemctl is-active NetworkManager)"
+    echo ""
+    read -rp "Continue anyway? [y/N] " answer
+    if [[ ! "$answer" =~ ^[Yy] ]]; then
+        exit 1
+    fi
+fi
+
+# Check Claude auth
+if ! claude auth status &>/dev/null 2>&1; then
+    echo "Claude Code is not authenticated."
+    echo ""
+    echo "Options:"
+    echo "  1) Browser login (requires desktop - run 'startx' first)"
+    echo "  2) Token login (paste API key)"
+    echo ""
+    read -rp "Authenticate now? [Y/n] " answer
+    if [[ ! "$answer" =~ ^[Nn] ]]; then
+        claude auth login
+    fi
+fi
+
+# Detect and offer to mount partitions
+echo ""
+echo "Available block devices:"
+lsblk -o NAME,SIZE,FSTYPE,LABEL,MOUNTPOINT 2>/dev/null || lsblk
+echo ""
+
+if ! mountpoint -q /mnt 2>/dev/null; then
+    read -rp "Mount a partition to /mnt for inspection? [y/N] " answer
+    if [[ "$answer" =~ ^[Yy] ]]; then
+        echo "Enter device path (e.g., /dev/sda2):"
+        read -r dev
+        if [ -b "$dev" ]; then
+            mount "$dev" /mnt
+            echo "Mounted $dev to /mnt"
+        else
+            echo "Invalid device: $dev"
+        fi
+    fi
+fi
+
+# Build context for Claude
+CONTEXT="You are running on a Rescue Me Claude live USB environment.
+Purpose: Debug and fix Linux systems.
+Available tools: arch-install-scripts, gdb, strace, filesystem tools (btrfs/ext4/xfs/lvm/luks), network tools.
+"
+
+if mountpoint -q /mnt 2>/dev/null; then
+    CONTEXT+="
+A system is mounted at /mnt.
+- OS: $(cat /mnt/etc/os-release 2>/dev/null | grep PRETTY_NAME | cut -d= -f2 | tr -d '"' || echo 'Unknown')
+- Kernel: $(ls /mnt/lib/modules/ 2>/dev/null | head -1 || echo 'Unknown')
+- Use 'arch-chroot /mnt' to chroot into the system.
+- Logs: journalctl -D /mnt/var/log/journal
+"
+fi
+
+# Launch Claude
+exec claude --system-prompt "$CONTEXT"
