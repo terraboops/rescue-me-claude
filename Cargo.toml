@@ -1,0 +1,24 @@
+[package]
+name = "rescue-me-claude"
+version = "0.1.0"
+edition = "2021"
+description = "A bootable Claude Code rescue environment for debugging Linux systems"
+license = "Apache-2.0"
+repository = "https://github.com/terraboops/rescue-me-claude"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+reqwest = { version = "0.12", features = ["blocking", "rustls-tls", "json"] }
+indicatif = "0.17"
+dialoguer = "0.11"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+which = "7"
+tempfile = "3"
+sha2 = "0.10"
+hex = "0.4"
+
+[profile.release]
+strip = true
+lto = true
+opt-level = "z"

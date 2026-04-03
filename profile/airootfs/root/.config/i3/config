@@ -1,0 +1,113 @@
+# Rescue Me Claude - i3 Configuration
+
+# Mod key = Super (Windows key)
+set $mod Mod4
+
+# Font
+font pango:monospace 10
+
+# Terminal
+bindsym $mod+Return exec kitty
+bindsym $mod+Shift+Return exec xterm
+
+# Application launcher
+bindsym $mod+d exec dmenu_run
+
+# Browser
+bindsym $mod+b exec firefox
+
+# Claude Code in new terminal
+bindsym $mod+c exec kitty -e claude
+
+# Kill focused window
+bindsym $mod+Shift+q kill
+
+# Window focus
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# Move windows
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+# Split orientation
+bindsym $mod+v split v
+bindsym $mod+g split h
+
+# Fullscreen
+bindsym $mod+f fullscreen toggle
+
+# Layout
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# Floating
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space focus mode_toggle
+
+# Workspaces
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+
+# Reload / restart i3
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+
+# Resize mode
+mode "resize" {
+    bindsym h resize shrink width 10 px
+    bindsym j resize grow height 10 px
+    bindsym k resize shrink height 10 px
+    bindsym l resize grow width 10 px
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+# Lock screen
+bindsym $mod+Shift+x exec i3lock -c 1a1a2e
+
+# Status bar
+bar {
+    status_command i3status
+    position top
+    colors {
+        background #1a1a2e
+        statusline #e0e0e0
+        separator #666666
+        focused_workspace  #4a90d9 #4a90d9 #ffffff
+        inactive_workspace #1a1a2e #1a1a2e #888888
+    }
+}
+
+# Auto-start terminal with Claude info on workspace 1
+exec --no-startup-id kitty
+
+# Enable NetworkManager applet if available
+exec --no-startup-id nm-applet &
+
+# No window borders
+default_border pixel 2
+
+# Colors
+client.focused          #4a90d9 #4a90d9 #ffffff #4a90d9 #4a90d9
+client.unfocused        #1a1a2e #1a1a2e #888888 #1a1a2e #1a1a2e
+client.focused_inactive #333333 #333333 #ffffff #333333 #333333

@@ -1,0 +1,104 @@
+# Base system
+base
+linux
+linux-firmware
+mkinitcpio
+mkinitcpio-archiso
+sudo
+dbus
+
+# Boot
+grub
+efibootmgr
+syslinux
+
+# Network
+networkmanager
+openssh
+iwd
+wpa_supplicant
+wireless-regdb
+nmap
+tcpdump
+bind
+iproute2
+iputils
+gnu-netcat
+wget
+curl
+
+# Claude Code runtime
+nodejs
+npm
+
+# Desktop (lightweight)
+xorg-server
+xorg-xinit
+xorg-xrandr
+xorg-xsetroot
+i3-wm
+i3status
+i3lock
+dmenu
+kitty
+xterm
+firefox
+mesa
+
+# Filesystem tools
+e2fsprogs
+xfsprogs
+btrfs-progs
+dosfstools
+ntfs-3g
+lvm2
+cryptsetup
+mdadm
+parted
+gptfdisk
+ddrescue
+
+# Debugging
+strace
+ltrace
+gdb
+htop
+iotop-c
+lsof
+
+# Editors
+nano
+vim
+neovim
+
+# System tools
+tmux
+screen
+rsync
+git
+arch-install-scripts
+man-db
+man-pages
+less
+which
+base-devel
+
+# Hardware diagnostics
+pciutils
+usbutils
+dmidecode
+smartmontools
+hdparm
+nvme-cli
+lshw
+
+# Misc utilities
+jq
+tree
+unzip
+p7zip
+zsh
+fzf
+ripgrep
+fd
+bat
