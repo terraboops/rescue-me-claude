@@ -97,7 +97,7 @@ echo "Building ISO..."
 mkarchiso -v -w "$WORK_DIR" -o "$OUTPUT_DIR" "$WORK_PROFILE"
 
 # Generate checksum
-ISO_FILE=$(ls -t "$OUTPUT_DIR"/*.iso 2>/dev/null | head -1)
+ISO_FILE=$(find "$OUTPUT_DIR" -maxdepth 1 -name '*.iso' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)
 if [ -n "$ISO_FILE" ]; then
     echo "Generating checksum..."
     sha256sum "$ISO_FILE" > "${ISO_FILE}.sha256"
